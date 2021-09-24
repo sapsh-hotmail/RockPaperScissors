@@ -12,6 +12,9 @@ namespace ConsoleGame.Code.Services
         public DecisionService(IHumanDecisionService humanDecisionService,
             IBotDecisionService botDecisionService)
         {
+            if (humanDecisionService == null) throw new ArgumentNullException(nameof(humanDecisionService));
+            if (botDecisionService == null) throw new ArgumentNullException(nameof(botDecisionService));
+
             _humanDecisionService = humanDecisionService;
             _botDecisionService = botDecisionService;
         }

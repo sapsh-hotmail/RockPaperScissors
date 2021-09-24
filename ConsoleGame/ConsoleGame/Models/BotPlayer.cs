@@ -1,4 +1,6 @@
-﻿namespace ConsoleGame.Code.Models
+﻿using System;
+
+namespace ConsoleGame.Code.Models
 {
     public class BotPlayer : Player
     {
@@ -8,6 +10,9 @@
 
         public BotPlayer(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
             _playerType = PlayerType.Bot;
             _name = name;
         }

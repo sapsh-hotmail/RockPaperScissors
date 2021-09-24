@@ -18,10 +18,10 @@ namespace ConsoleGame.Test
         {
             GameResultService gameResultService = new GameResultService(_roundResultService);
 
-            var result = gameResultService.AddRound(Decision.PAPER, Decision.SCISSORS);
+            var result = gameResultService.AddRound(Decision.ROCK, Decision.SCISSORS);
 
-            Assert.Equal(RoundResult.PLAYER_2_WIN, result);
-            Assert.Equal(1, gameResultService.Player2WinCount);
+            Assert.Equal(RoundResult.PLAYER_1_WIN, result);
+            Assert.Equal(1, gameResultService.Player1WinCount);
         }
 
         [Fact]
@@ -34,6 +34,7 @@ namespace ConsoleGame.Test
 
             Assert.Equal(RoundResult.TIE, result);
             Assert.Equal(1, gameResultService.Player2WinCount);
+            Assert.Equal(1, gameResultService.TieCount);
         }
     }
 }

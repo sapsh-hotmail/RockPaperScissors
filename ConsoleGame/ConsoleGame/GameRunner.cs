@@ -1,5 +1,7 @@
 ﻿using ConsoleGame.Code.Models;
 using ConsoleGame.Code.Services.Interface;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace ConsoleGame.Code
 {
@@ -8,12 +10,19 @@ namespace ConsoleGame.Code
         private int _gameUptoWinCount;
         private readonly IGameResultService _gameResultService;
         private readonly IDecisionService _decisionService;
+        private readonly ILogger _logger;
 
         public GameRunner(IGameResultService gameResultService,
-            IDecisionService decisionService)
+            IDecisionService decisionService,
+            ILogger<GameRunner> logger)
         {
+            if (gameResultService == null) throw new ArgumentNullException(nameof(gameResultService));
+            if (decisionService == null) throw new ArgumentNullException(nameof(decisionService));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+
             _gameResultService = gameResultService;
             _decisionService = decisionService;
+            _logger = logger;
         }
 
         public Player Play(Player player1, Player player2, int gameUptoWinCount)
@@ -22,17 +31,24 @@ namespace ConsoleGame.Code
 
             do
             {
-                var decisionP1 = _decisionService.GetDecisionForPlayer(player1);
-                var decisionP2 = _decisionService.GetDecisionForPlayer(player2);
-
-                var result = _gameResultService.AddRound(decisionP1, decisionP2);
-                if (result != RoundResult.TIE)
+                try
                 {
-                    var winner = IsPlayerWinUptoCount(player1, player2);
-                    if (winner != null)
+                    var decisionP1 = _decisionService.GetDecisionForPlayer(player1);
+                    var decisionP2 = _decisionService.GetDecisionForPlayer(player2);
+
+                    var result = _gameResultService.AddRound(decisionP1, decisionP2);
+                    if (result != RoundResult.TIE)
                     {
-                        return winner;
+                        var winner = IsPlayerWinUptoCount(player1, player2);
+                        if (winner != null)
+                        {
+                            return winner;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Getting error while playing round. Current round is restarted.");
                 }
             } while (true);
         }

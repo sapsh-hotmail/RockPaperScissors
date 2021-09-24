@@ -36,37 +36,45 @@ namespace ConsoleGame.Code.Services
 
         public RoundResult AddRound(Decision player1Decision, Decision player2Decision)
         {
-            _round++;
-
-            var result = _roundResultService.GetRoundResult(player1Decision, player2Decision);
-            Console.WriteLine($"Winner of round {_round} is {result}");
-
-            var roundDecision = new RoundDecision
+            try
             {
-                RoundCount = _round,
-                Player1Decision = player1Decision,
-                Player2Decision = player2Decision,
-                Result = result
-            };
+                _round++;
 
-            _roundSummary.Add(_round, roundDecision);
+                var result = _roundResultService.GetRoundResult(player1Decision, player2Decision);
+                Console.WriteLine($"Winner of round {_round} is {result}");
 
-            switch (result)
-            {
-                case RoundResult.PLAYER_1_WIN:
-                    _player1WinCount++;
-                    break;
+                var roundDecision = new RoundDecision
+                {
+                    RoundCount = _round,
+                    Player1Decision = player1Decision,
+                    Player2Decision = player2Decision,
+                    Result = result
+                };
 
-                case RoundResult.PLAYER_2_WIN:
-                    _player2WinCount++;
-                    break;
+                _roundSummary.Add(_round, roundDecision);
 
-                case RoundResult.TIE:
-                    _tieCount++;
-                    break;
+                switch (result)
+                {
+                    case RoundResult.PLAYER_1_WIN:
+                        _player1WinCount++;
+                        break;
+
+                    case RoundResult.PLAYER_2_WIN:
+                        _player2WinCount++;
+                        break;
+
+                    case RoundResult.TIE:
+                        _tieCount++;
+                        break;
+                }
+
+                return result;
             }
-
-            return result;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Gettinger error {ex.Message} while playing round {_round}. Returned errored result.");
+                throw;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ConsoleGame.Code.Models;
+using System;
 
 namespace ConsoleGame.Code.Factory
 {
@@ -8,6 +9,9 @@ namespace ConsoleGame.Code.Factory
 
         public HumanPlayerFactory(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
             _playerName = name;
         }
 

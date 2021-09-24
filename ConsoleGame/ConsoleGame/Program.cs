@@ -3,6 +3,7 @@ using ConsoleGame.Code.Models;
 using ConsoleGame.Code.Services;
 using ConsoleGame.Code.Services.Interface;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace ConsoleGame.Code
@@ -11,17 +12,16 @@ namespace ConsoleGame.Code
     {
         private static void Main(string[] args)
         {
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+
             //setup our DI
-            var serviceProvider = new ServiceCollection()
-                .AddTransient<IHumanDecisionService, ConsoleHumanDecisionService>()
-                .AddTransient<IBotDecisionService, RandomBotDecisionService>()
-                .AddTransient<IDecisionService, DecisionService>()
-                .AddScoped<IRoundResultService, RoundResultService>()
-                .AddScoped<IGameResultService, GameResultService>()
-                .BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var gameResultService = serviceProvider.GetService<IGameResultService>();
             var decisionService = serviceProvider.GetService<IDecisionService>();
+            var logger = serviceProvider.GetService<ILogger<Program>>();
+            var loggerGameRunner = serviceProvider.GetService<ILogger<GameRunner>>();
 
             Player player1 = null;
             Player player2 = null;
@@ -80,9 +80,36 @@ namespace ConsoleGame.Code
                 int.TryParse(input, out gameUptoWinCount);
             } while (gameUptoWinCount <= 0);
 
-            var gameRunner = new GameRunner(gameResultService, decisionService);
-            var winner = gameRunner.Play(player1, player2, gameUptoWinCount);
-            Console.WriteLine($"Winner is {winner.PlayerName}");
+            bool playAgain = false;
+            do
+            {
+                try
+                {
+                    var gameRunner = new GameRunner(gameResultService, decisionService, loggerGameRunner);
+                    var winner = gameRunner.Play(player1, player2, gameUptoWinCount);
+                    Console.WriteLine($"Winner is {winner.PlayerName}");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Exception is thrown while playing game. The game will continue from last saved round.");
+                    playAgain = true;
+                }
+            } while (playAgain);
+        }
+
+        /// <summary>
+        /// Configure dependencies
+        /// </summary>
+        /// <param name="services"></param>
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services
+                .AddLogging(configure => configure.AddConsole())
+                .AddTransient<IHumanDecisionService, ConsoleHumanDecisionService>()
+                .AddTransient<IBotDecisionService, RandomBotDecisionService>()
+                .AddTransient<IDecisionService, DecisionService>()
+                .AddScoped<IRoundResultService, RoundResultService>()
+                .AddScoped<IGameResultService, GameResultService>();
         }
     }
 }

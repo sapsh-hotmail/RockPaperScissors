@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/ConsoleGame/.vs/ConsoleGame/DesignTimeBuild
+/ConsoleGame/.vs/ConsoleGame/v16
+/ConsoleGame/ConsoleGame/bin/Debug/netcoreapp3.1
+/ConsoleGame/ConsoleGame/obj
+/ConsoleGame/ConsoleGame.Test/bin/Debug/netcoreapp3.1
+/ConsoleGame/ConsoleGame.Test/obj
+/ConsoleGame/ConsoleGame.Test/bin/Release/netcoreapp3.1
